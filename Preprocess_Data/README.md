@@ -5,6 +5,7 @@
 This module preprocesses YouTube comments/transcripts for hate speech detection models. It includes steps to clean, filter, and standardize comments, making them ready for further analysis or model input. The preprocessing ensures that comments retain key features important for detecting offensive or hate speech, while irrelevant elements are removed or adjusted.
 
 Input: a list of comments/transcripts
+
 Output: a list of preprocessed comments/transcripts
 
 ## Features
