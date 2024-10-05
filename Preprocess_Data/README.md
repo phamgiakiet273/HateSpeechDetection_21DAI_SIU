@@ -35,12 +35,16 @@ The `requirements.txt` file includes:
 
 ## How to use this module
 
-1. **Prepare your comments**: Insert the list of YouTube comments you wish to preprocess.
+```python
+from NLP_HateSD_Preprocess import preprocess_comments
 
-2. **Run the script**: Use the `NLP_HateSD_Preprocess.py` script to clean and preprocess the comments.
+comments = [
+    "first",
+    "Your sample comment here!",
+    "N0w y0u s33 m3.",
+    "Tiếng Việt"
+]
 
-    ```bash
-    python NLP_HateSD_Preprocess.py
-    ```
-    
-3. **Output**: The script will return a list of cleaned comments, ready for use in hate speech detection models.
+output = preprocess_comments(comments)
+print(output)
+ ```
