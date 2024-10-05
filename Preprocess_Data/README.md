@@ -41,7 +41,7 @@ from NLP_HateSD_Preprocess import preprocess_comments
 comments = [
     "first",
     "Your sample comment here!",
-    "N0w y0u s33 m3.",
+    "L33t c0de",
     "Tiếng Việt"
 ]
 
