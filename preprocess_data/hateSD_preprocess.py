@@ -36,8 +36,13 @@ def preprocess_comments(json_path, output_csv_path):
     for comment in comments:
         # Remove punctuation (including emoji, except necessary ones like: f**k, sh!t, @$$)
         comment = comment.replace('\n', ' ')
-        comment = re.sub(r'[^\w\s*?!@$&]', '', comment)
-        comment = ''.join([number_to_letter_map.get(c, c) if c.isdigit() else c for c in comment])
+        comment = re.sub(r'[^\w\s*?!@$]', '', comment)
+        # Splits the comment into words, then checks each word to see if it contains any letters. If yes -> perform the leetspeak replacements.
+        # case: 94y -> gay but not 1994 cause pure numeric
+        comment = ' '.join([
+            ''.join([number_to_letter_map.get(c, c) if c.isdigit() and any(ch.isalpha() for ch in word) else c for c in word]) 
+            for word in comment.split()
+        ])
 
         # Check if the comment contains at least 2 letters
         letters = [char for char in comment if char.isalpha()]
