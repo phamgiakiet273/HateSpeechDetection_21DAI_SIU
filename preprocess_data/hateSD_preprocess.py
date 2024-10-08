@@ -1,13 +1,16 @@
 import re
+import emoji
 import fasttext
 from huggingface_hub import hf_hub_download
 import json
+import csv
+import pandas as pd
 
 # Download and load the fastText model for language identification
 model_path = hf_hub_download(repo_id="facebook/fasttext-language-identification", filename="model.bin")
 model = fasttext.load_model(model_path)
 
-def preprocess_comments(json_path, output_csv_path):
+def preprocess_comments(csv_path, output_csv_path):
 
     def is_english(comment):
         """ Function to filter non-English comments """
@@ -17,10 +20,8 @@ def preprocess_comments(json_path, output_csv_path):
                 return True
         return False
 
-    # Load the JSON file with utf-8-sig encoding
-    with open(json_path, 'r', encoding='utf-8-sig') as f:
-        comments_data = json.load(f)
-    comments = comments_data
+    df = pd.read_csv(csv_path, header=None, encoding='utf-8-sig')
+    comments = df[0].tolist()
 
     cleaned_comments = []
     number_to_letter_map = {
@@ -34,13 +35,16 @@ def preprocess_comments(json_path, output_csv_path):
     }
 
     for comment in comments:
-        # Remove punctuation (including emoji, except necessary ones like: f**k, sh!t, @$$)
+        comment = emoji.replace_emoji(comment, replace=' ')
+
+        # Remove punctuation (except necessary ones like: f**k, sh!t, @$$)
         comment = comment.replace('\n', ' ')
-        comment = re.sub(r'[^\w\s*?!@$]', '', comment)
+        comment = re.sub(r'[^\w\s*?!@$\']', '', comment)
+
         # Splits the comment into words, then checks each word to see if it contains any letters. If yes -> perform the leetspeak replacements.
         # case: 94y -> gay but not 1994 cause pure numeric
         comment = ' '.join([
-            ''.join([number_to_letter_map.get(c, c) if c.isdigit() and any(ch.isalpha() for ch in word) else c for c in word]) 
+            ''.join([number_to_letter_map.get(c, c) if c.isdigit() and any(ch.isalpha() for ch in word) else c for c in word])
             for word in comment.split()
         ])
 
@@ -48,8 +52,6 @@ def preprocess_comments(json_path, output_csv_path):
         letters = [char for char in comment if char.isalpha()]
         if len(letters) >= 2 and is_english(comment):
             cleaned_comments.append(comment)
-
-    import csv
 
     # Save cleaned comments directly to a CSV file
     with open(output_csv_path, mode='w', newline='', encoding='utf-8-sig') as file:

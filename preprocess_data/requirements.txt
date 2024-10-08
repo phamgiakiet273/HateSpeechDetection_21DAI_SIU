@@ -1,3 +1,5 @@
-fasttext==0.9.2
-huggingface_hub==0.16.4
+emoji
+fasttext
+huggingface_hub
 numpy==1.24.3
+pandas
