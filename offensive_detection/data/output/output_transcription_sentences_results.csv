@@ -1,0 +1,5 @@
+Sentence,Timestamp,Transcription_Prediction,Transcription_Score
+This is the introduction of the video.,00:00:15,non-offensive,0.8689588308334351
+Now we are going to discuss the main topic.,00:01:10,non-offensive,0.8993144035339355
+This part explains everything in detail.,00:02:30,non-offensive,0.8598626255989075
+And that concludes our video.,00:03:45,non-offensive,0.8653571605682373
