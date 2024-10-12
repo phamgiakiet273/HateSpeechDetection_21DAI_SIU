@@ -10,19 +10,24 @@ import pandas as pd
 model_path = hf_hub_download(repo_id="facebook/fasttext-language-identification", filename="model.bin")
 model = fasttext.load_model(model_path)
 
-def preprocess_comments(csv_path, output_csv_path):
+def preprocess(comment_path, transcript_path, output_comment_path, output_transcript_path):
 
-    def is_english(comment):
-        """ Function to filter non-English comments """
-        prediction = model.predict(comment, k=2) # Get the top 2 languages present
+    def is_english(text):
+        """ Function to filter non-English text """
+        prediction = model.predict(text, k=2) # Get the top 2 languages present
         for label in prediction[0]:
             if label == "__label__eng_Latn":
                 return True
         return False
 
-    df = pd.read_csv(csv_path, header=None, encoding='utf-8-sig')
+    # read csv file
+    df = pd.read_csv(comment_path, header=None, encoding='utf-8-sig')
     comments = df[0].tolist()
+    times = df[1].tolist()
+    df = pd.read_csv(transcript_path, header=None, encoding='utf-8-sig')
+    transcript = df[0].tolist()
 
+    # ===== clean comments =====
     cleaned_comments = []
     number_to_letter_map = {
         '0': 'o',
@@ -34,7 +39,7 @@ def preprocess_comments(csv_path, output_csv_path):
         '9': 'g'
     }
 
-    for comment in comments:
+    for comment, time in zip(comments, times):
         comment = emoji.replace_emoji(comment, replace=' ')
 
         # Remove punctuation (except necessary ones like: f**k, sh!t, @$$)
@@ -51,11 +56,24 @@ def preprocess_comments(csv_path, output_csv_path):
         # Check if the comment contains at least 2 letters
         letters = [char for char in comment if char.isalpha()]
         if len(letters) >= 2 and is_english(comment):
-            cleaned_comments.append(comment)
+            cleaned_comments.append((comment, time))
 
     # Save cleaned comments directly to a CSV file
-    with open(output_csv_path, mode='w', newline='', encoding='utf-8-sig') as file:
+    with open(output_comment_path, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        writer.writerow(["cleaned_comments"])  # Write the header
-        for comment in cleaned_comments:
-            writer.writerow([comment])  # Write each comment as a row
+        for comment, time in cleaned_comments:
+            writer.writerow([comment, time])  # Write each comment as a row
+
+    # ===== clean transcript =====
+    cleaned_transcript = []
+
+    for sentence in transcript:
+        letters = [char for char in sentence]
+        if len(letters) >= 2 and is_english(sentence):
+            cleaned_transcript.append(sentence)
+
+    # Save cleaned transcript directly to a CSV file
+    with open(output_transcript_path, mode='w', newline='', encoding='utf-8-sig') as file:
+        writer = csv.writer(file)
+        for text in cleaned_transcript:
+            writer.writerow([text])  # Write each comment as a row
