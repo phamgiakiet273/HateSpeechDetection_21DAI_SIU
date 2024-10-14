@@ -4,9 +4,15 @@
 
 This module preprocesses YouTube comments/transcripts for hate speech detection models. It includes steps to clean, filter, and standardize comments, making them ready for further analysis or model input. The preprocessing ensures that comments retain key features important for detecting offensive or hate speech, while irrelevant elements are removed or adjusted.
 
-Input: a list of comments/transcripts
+- Input: a list of comments/transcripts
 
-Output: a list of preprocessed comments/transcripts
+- Output: a list of preprocessed comments/transcripts
+
+Example:
+
+- Input: ["""I voted for politicians and now I regret it."" LMFAO🤣", "@Etrajbe its a f*cking joke relax omg!!", "hahahahahaha", "thepiratebay is still up isn't it :)", "are you s.t.u.p.i.d?"]
+
+- Output: ["I voted for politicians and now I regret it LMFAO", "@Etrajbe its a f*cking joke relax omg!!", "thepiratebay is still up isn't it", "are you stupid?"]
 
 ## Features
 
