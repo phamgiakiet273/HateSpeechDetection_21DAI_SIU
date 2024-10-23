@@ -81,35 +81,48 @@ def remove_entities(comment):
     entity_words = [result['word'].replace('@@', '') for result in ner_results]  # Remove '@@' from subword tokens
 
     # Create a regex pattern to match entity words
-    pattern = r'\b(' + '|'.join(re.escape(word) for word in entity_words) + r')\b'
-
-    # Replace entity words with an empty string
-    new_comment = re.sub(pattern, '', comment)
+    if entity_words:
+        pattern = r'\b(' + '|'.join(re.escape(word) for word in entity_words) + r')\b'
+        # Replace entity words with an empty string
+        new_comment = re.sub(pattern, '', comment)
+    else:
+        new_comment = comment
 
     # Clean up extra spaces
     new_comment = re.sub(r'\s+', ' ', new_comment).strip()
 
+    # Brute-force remove '@@ ' if it's still in the comment
+    new_comment = new_comment.replace('@@ ', '')
+
     return new_comment
 
+
+import re
+import emoji
+import fasttext
+from huggingface_hub import hf_hub_download
+import json
+import csv
+import pandas as pd
 
 def preprocess(comment_path, transcript_path, output_comment_path, output_transcript_path, output_NER_comment, output_NER_transcript):
 
     def is_english(text):
         """ Function to filter non-English text """
-        prediction = model2.predict(text, k=2) # Get the top 2 languages present
+        prediction = model2.predict(text, k=2)  # Get the top 2 languages present
         for label in prediction[0]:
             if label == "__label__eng_Latn":
                 return True
         return False
 
-    # read csv file
+    # Read CSV files
     df = pd.read_csv(comment_path, header=None, encoding='utf-8-sig')
     comments = df[0].tolist()
     times = df[1].tolist()
     df = pd.read_csv(transcript_path, header=None, encoding='utf-8-sig')
     transcript = df[0].tolist()
 
-    # ===== clean comments =====
+    # ===== Clean Comments =====
     cleaned_comments = []
     number_to_letter_map = {
         '0': 'o',
@@ -128,25 +141,25 @@ def preprocess(comment_path, transcript_path, output_comment_path, output_transc
         comment = comment.replace('\n', ' ')
         comment = re.sub(r'[^\w\s*?!@$\']', '', comment)
 
-        # Splits the comment into words, then checks each word to see if it contains any letters. If yes -> perform the leetspeak replacements.
-        # case: 94y -> gay but not 1994 cause pure numeric
+        # Leetspeak replacement
         comment = ' '.join([
             ''.join([number_to_letter_map.get(c, c) if c.isdigit() and any(ch.isalpha() for ch in word) else c for c in word])
             for word in comment.split()
         ])
 
-        # Check if the comment contains at least 2 letters
+        # Check if the comment contains at least 2 letters and is English
         letters = [char for char in comment if char.isalpha()]
         if len(letters) >= 2 and is_english(comment):
             cleaned_comments.append((comment, time))
 
-    # Save cleaned comments to a CSV file
+    # Save cleaned comments to CSV with 4 columns: 'index', 'content', 'NER', 'time'
     with open(output_comment_path, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        for comment, time in cleaned_comments:
-            writer.writerow([comment, time])  # Write each comment as a row
+        writer.writerow(['index', 'content', 'NER', 'time'])
+        for idx, (comment, time) in enumerate(cleaned_comments, 1):
+            writer.writerow([idx, comment, '', time])  # NER is left blank
 
-    # ===== clean transcript =====
+    # ===== Clean Transcript =====
     cleaned_transcript = []
 
     for sentence in transcript:
@@ -156,24 +169,28 @@ def preprocess(comment_path, transcript_path, output_comment_path, output_transc
 
     with open(output_transcript_path, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        for text in cleaned_transcript:
-            writer.writerow([text])
+        writer.writerow(['index', 'content', 'NER', 'time'])
+        for idx, sentence in enumerate(cleaned_transcript, 1):
+            writer.writerow([idx, sentence, '', ''])  # Time and NER are left blank
 
-    # ===== add NER =====
-    cleaned_comments_df = pd.DataFrame(cleaned_comments)
+    # ===== Add NER =====
+    cleaned_comments_df = pd.DataFrame(cleaned_comments, columns=['content', 'time'])
     cleaned_transcript_df = pd.DataFrame(cleaned_transcript)
 
-    NER_cleaned_comments = cleaned_comments_df[0].apply(normalizeTweet)
+    NER_cleaned_comments = cleaned_comments_df['content'].apply(normalizeTweet)
     NER_cleaned_transcript = cleaned_transcript_df[0].apply(normalizeTweet)
 
-    NER_cleaned_comments = cleaned_comments_df[0].apply(remove_entities)
-    NER_cleaned_transcript = cleaned_transcript_df[0].apply(remove_entities)
+    NER_cleaned_comments =  NER_cleaned_comments.apply(remove_entities)
+    NER_cleaned_transcript = NER_cleaned_transcript.apply(remove_entities)
 
     with open(output_NER_comment, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        for comment in NER_cleaned_comments:
-            writer.writerow([comment])
+        writer.writerow(['index', 'content', 'NER', 'time'])
+        for idx, (comment, time) in enumerate(zip(NER_cleaned_comments, cleaned_comments_df['time']), 1):
+            writer.writerow([idx, '', comment, time])  # Content is left blank, time is preserved
+
     with open(output_NER_transcript, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        for sentence in NER_cleaned_transcript:
-            writer.writerow([sentence])
+        writer.writerow(['index', 'content', 'NER', 'time'])
+        for idx, sentence in enumerate(NER_cleaned_transcript, 1):
+            writer.writerow([idx, '', sentence, ''])  # Content is left blank, no time
