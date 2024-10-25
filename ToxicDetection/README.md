@@ -21,6 +21,7 @@ You can install the required packages using the following command:
 
 ```bash
 pip install pandas tensorflow keras
+```
 
 ## Dataset
 
@@ -50,6 +51,7 @@ The detection script is located in the file `detection.py`. To run the script, u
 
 ```bash
 python detection.py
+```
 
 ### The script will:
 
@@ -89,22 +91,26 @@ For example, if a comment has the following predicted probabilities for hate spe
 
 ```python
 predictions = [0.12, 0.05, 0.08, 0.01, 0.03, 0.02]  # toxic, severe_toxic, etc.
+```
 
 The sum of the predictions for the six categories is:
 
 ```python
 sum_predictions = sum(predictions)  # 0.31
+```
 
 Then, the neutral score is calculated as:
 
 ```python
 neutral_score = max(0, 1 - sum_predictions)  # 0.69
+```
 
 Finally, the predictions are normalized so that all categories (including neutral) sum to 100%. The resulting percentages for each category are:
 
 ```python
 predictions.append(neutral_score)
 predictions = [float((float(item) / (sum_predictions + neutral_score)) * 100) for item in predictions]
+```
 
 ### Example Output
 
