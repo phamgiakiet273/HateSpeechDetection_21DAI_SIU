@@ -5,7 +5,7 @@ from huggingface_hub import hf_hub_download
 import json
 import csv
 import pandas as pd
-
+import torch
 from emoji import demojize
 from nltk.tokenize import TweetTokenizer
 from transformers import AutoTokenizer, AutoModelForTokenClassification
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 tokenizer = AutoTokenizer.from_pretrained("TweebankNLP/bertweet-tb2_wnut17-ner")
 model = AutoModelForTokenClassification.from_pretrained("TweebankNLP/bertweet-tb2_wnut17-ner")
 #ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, grouped_entities=True)
-ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple", device=torch.device('cuda'))
 
 def remove_entities(comment):
     # Get named entities in the comment
