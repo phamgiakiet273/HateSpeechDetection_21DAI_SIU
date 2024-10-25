@@ -1,0 +1,8 @@
+emoji
+fasttext
+huggingface_hub
+numpy==1.24.3
+pandas
+nltk
+transformers
+torch
