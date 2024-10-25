@@ -1,6 +1,0 @@
-user,comments,comment_time,Comment_Prediction,Comment_Score
-user1,People like you are the reason this world is so messed up!,30/09/2024 12:00,offensive,0.635276616
-user2,I hate the way this was presented.,30/09/2024 12:01,non-offensive,0.605149746
-user3,You should be ashamed of your kind.,30/09/2024 12:05,offensive,0.563286185
-user4,This is the worst!,30/09/2024 12:10,offensive,0.564387679
-user5,"I will kill you, bitch!",30/09/2024 12:10,offensive,0.927744448
