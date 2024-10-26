@@ -36,6 +36,12 @@ Description: Runs the hate speech detection. Results are saved to `result.csv` (
 
 `/download` - Downloads the result.csv file containing the classification results.
 
+## Functions
+
+`def lstm_word2vec(comment):` Detect toxic comments and speech
+
+`def makeData(path_csv):` Save detect results in `csv` file
+
 # Toxic Comment Detection Web Application
 
 This web application allows users to detect toxic comments in YouTube videos by transcribing the video's audio and analyzing the resulting comments for harmful language. The application leverages a model trained to classify comments as toxic, severe toxic, obscene, threat, insult, identity hate, or neutral.
