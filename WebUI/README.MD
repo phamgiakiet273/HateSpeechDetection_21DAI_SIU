@@ -39,8 +39,12 @@ Description: Runs the hate speech detection. Results are saved to `result.csv` *
 ## Functions
 
 `def lstm_word2vec(comment):` Detect toxic comments and speech
+    - Input: comment and transcript in string
+    - Output: an initial text with 7 positive decimal number (respective with 7 labels)
 
-`def makeData(path_csv):` Save detect results in `csv` file
+`def makeData(path_csv):` Detect all comments and transcripts to 'result.csv` file
+    - Input: comment or transcript files path
+    - Output: `DataFrame` of the result
 
 # Toxic Comment Detection Web Application
 
