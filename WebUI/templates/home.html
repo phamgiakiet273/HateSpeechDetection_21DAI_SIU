@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Toxic Comment Detection</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Toxic Comment Detection</h1>
+
+        <!-- Section 1: Load Video -->
+            <form method='POST'>
+                <div class="video-section">
+                    <input type="text" id="youtube-url" placeholder="Enter Youtube URL..." />
+                    <button id="load-button" onclick="loadVideo(event)">Load Video</button>
+                    <button id="process-button" type='submit'>Process</button>
+                    <div id="video-container" class="video-container"></div>
+                </div>
+            </form>
+
+        <!-- Section 2: Transcription Results -->
+        <div class="transcription-results">
+            <div class="left">
+                <h2>Transcription Results</h2>
+                <div id="transcription"></div>
+            </div>
+            <div class="right">
+                <h2>NER Transcription Results</h2>
+                <div id="ner-results"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: Comments Results -->
+        <div class="comment-results">
+            <div class="left">
+                <h2>Comments Results</h2>
+                <div id="comment-results"></div>
+            </div>
+            <div class="right">
+                <h2>NER Comments Results</h2>
+                <div id="ner-comment-results"></div>
+            </div>
+        </div>
+
+        <!-- Section 4: Test -->
+        <div class="test-section">
+            <h2>Test Input</h2>
+            <div class="row" id="row2">
+                <div class="col s12">
+                    <div id="main" class="card">
+                        <div class="flex-container" style="height:380px">
+                            <div class="flex-child">
+                                <div class="card-content">
+                                    <span class="card-title">Paste file URL</span>
+                                    <div class="row">
+                                        <form id="task-form" action="/predict" method="POST">
+                                            <div class="input-field col s12">
+                                                <input type="text" name="task" id="task" placeholder='Enter URL...' autocomplete="off">
+                                            </div>
+                                            <button type="submit" name="submit-button" value='word2vec' class="btn">Detect Hate Speech</button>
+                                            <input type="reset" value="Reset" class="btn" href='#'>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-child lime">
+                                <div class="card-action" style="height:100%">
+                                    <span class="card-title">RESULT</span>
+                                    <div class="container" id="fillchart" style="height: 85%; width: 100%; padding:10px">
+                                           
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Test Results -->
+        <div class="test-results">
+            <h2>Results</h2>
+            <div id="test-output"></div>
+            <form action="/download" method="get">
+                <button type="submit">Download Results</button>
+            </form>
+            
+        </div>
+    </div>
+
+    <script>
+        function loadVideo(event) {
+            event.preventDefault(); // Prevent the default form submission
+            const url = document.getElementById("youtube-url").value;
+            const videoId = getYouTubeID(url);
+            if (videoId) {
+                const videoContainer = document.getElementById("video-container");
+                videoContainer.innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+            } else {
+                alert("Please enter validate URL.");
+            }
+        }
+        
+        function getYouTubeID(url) {
+            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&\n]{11})/;
+            const matches = url.match(regex);
+            return matches ? matches[1] : null;
+        }        
+
+        function predict(model) {
+            const comment = document.getElementById("comment-input").value;
+            
+            const formData = new FormData();
+            formData.append('model_type', model);
+            if (comment) {
+                formData.append('task', comment);
+            }
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response data here (update the test-output div)
+                document.getElementById("test-output").innerText = JSON.stringify(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
