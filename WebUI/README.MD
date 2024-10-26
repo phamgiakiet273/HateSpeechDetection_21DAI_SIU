@@ -2,8 +2,6 @@
 
 # Installation
 
-A brief description of what this project does and who it's for
-
 Clone the repository:
 ```
 git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU.git
