@@ -32,7 +32,7 @@ Description: Results will store as files in `/dataset`.
 - Parameter:   
     - `path_csv` - Path to the input CSV file in `/dataset` after speech to text preprocessing.
 
-Description: Runs the hate speech detection. Results are saved to `result.csv` (Current result can just save in one path)
+Description: Runs the hate speech detection. Results are saved to `result.csv` **(Current result can just save in one path file)**
 
 `/download` - Downloads the result.csv file containing the classification results.
 
