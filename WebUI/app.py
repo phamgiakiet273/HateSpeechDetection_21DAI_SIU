@@ -67,22 +67,20 @@ def download_file():
     path = path_parent + '/result.csv'
     return send_file(path, as_attachment=True)
 
-@app.route('/process')
+@app.route('/process', methods=['POST'])
 def video_processing():
-    video_path = request.form['youtube-url']
-    
-    # Processing video (youtube to text)
-    # return 
-    print('Done')
-
+    video_path = request.form.get('youtube_url')
+    # Perform processing on video_path if necessary
+    print(video_path)
+    return "Processing complete for video"
 
 @app.route('/predict', methods=['POST'])
 def custom():
-    path_csv = request.form['task']    
-    # Classify toxic text
-    if request.method == 'POST':
+    path_csv = request.form.get('task')
+    if path_csv:
         makeData(path_csv)
-    return render_template('home.html', message="Processing complete. You can download the results.")
+        # return "Processing complete. You can download the results."
+    # return "Error: No CSV file path provided"
 
 if __name__ == "__main__":
     app.run(port=5002, debug=True)
