@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Toxic Comment Detection</title>
+    <style>
+        /* Spinner styles */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            display: none; /* Initially hidden */
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -18,6 +35,9 @@
                     <div id="video-container" class="video-container"></div>
                 </div>
             </form>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="spinner"></div>
 
         <!-- Section 2: Transcription Results -->
         <div class="transcription-results">
@@ -42,49 +62,14 @@
                 <div id="ner-comment-results"></div>
             </div>
         </div>
-
-        <!-- Section 4: Test -->
-        <div class="test-section">
-            <h2>Test Input</h2>
-            <div class="row" id="row2">
-                <div class="col s12">
-                    <div id="main" class="card">
-                        <div class="flex-container" style="height:380px">
-                            <div class="flex-child">
-                                <div class="card-content">
-                                    <span class="card-title">Paste file URL</span>
-                                    <div class="row">
-                                        <form id="predictForm" action="/predict" method="POST">
-                                            <div class="input-field col s12">
-                                                <input type="text" name="task" id="task" placeholder='Enter URL...' autocomplete="off">
-                                            </div>
-                                            <button type="button" name="submit-button" value='word2vec' onclick="predictData()" class="btn">Detect Hate Speech</button>
-                                            <input type="reset" value="Reset" class="btn" href='#'>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex-child lime">
-                                <div class="card-action" style="height:100%">
-                                    <span class="card-title">RESULT</span>
-                                    <div class="container" id="fillchart" style="height: 85%; width: 100%; padding:10px">
-                                           
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Section 5: Test Results -->
         <div class="test-results">
             <h2>Results</h2>
             <div id="test-output"></div>
             <form action="/download" method="get">
-                <button type="submit">Download Results</button>
+                <div class="video-section">
+                    <button type="submit">Download Results</button>
+                </div>
             </form>
             
         </div>
@@ -111,16 +96,22 @@
 
         function processVideo() {
             const formData = new FormData(document.getElementById('processForm'));
-            
+            document.getElementById('loading').style.display = 'block';
             fetch('/process', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                document.getElementById('message').innerHTML = data;
+                loadCSVData(data.output_cleaned_comment_path, 'comment-results');
+                loadCSVData(data.output_cleaned_transcript_path, 'transcription');
+                loadCSVData(data.output_cleaned_NER_comment_path, 'ner-comment-results');
+                loadCSVData(data.output_cleaned_NER_transcript_path, 'ner-results');
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                document.getElementById('loading').style.display = 'none'; // Hide the spinner
+            });
         }
 
         function predictData() {
@@ -135,6 +126,41 @@
                 document.getElementById('message').innerHTML = data;
             })
             .catch(error => console.error('Error:', error));
+        }
+
+        function loadCSVData(csvFilename, elementId) {
+            if (!csvFilename) {
+                console.error(`Filename for ${elementId} is undefined.`);
+                return;
+            }
+            
+            // Construct the full URL for the CSV endpoint
+            const csvUrl = `${window.location.origin}/csv/${csvFilename}`;
+            console.log(`Fetching CSV from: ${csvUrl}`);  // Log for debugging
+            
+            fetch(csvUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(text => {
+                    const rows = text.split('\n').map(row => row.split(','));
+                    const table = document.createElement('table');
+                    rows.forEach(row => {
+                        const tr = document.createElement('tr');
+                        row.forEach(cell => {
+                            const td = document.createElement('td');
+                            td.textContent = cell;
+                            tr.appendChild(td);
+                        });
+                        table.appendChild(tr);
+                    });
+                    document.getElementById(elementId).innerHTML = '';  // Clear previous content
+                    document.getElementById(elementId).appendChild(table);
+                })
+                .catch(error => console.error('Error loading CSV:', error));
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
