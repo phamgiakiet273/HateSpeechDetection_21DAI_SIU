@@ -10,7 +10,7 @@ This module preprocesses YouTube comments/transcripts for hate speech detection 
 
 Example:
 
-- Input: ["""I voted for politicians and now I regret it."" LMFAO🤣", "@Etrajbe its a f*cking joke relax omg!!", "hahahahahaha", "thepiratebay is still up isn't it :)", "are you s.t.u.p.i.d?"]
+- Input: ["""I voted for politicians and now I regret it."" LMFAO🤣", "@Etrajbe its a f*cking joke relax omg!!", "h", "thepiratebay is still up isn't it :)", "are you s.t.u.p.i.d?"]
 
 - Output: ["I voted for politicians and now I regret it LMFAO", "its a f*cking joke relax omg!!", "thepiratebay is still up isn't it", "are you stupid?"]
 
