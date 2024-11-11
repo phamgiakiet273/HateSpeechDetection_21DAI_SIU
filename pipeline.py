@@ -9,6 +9,7 @@ from DataPreprocessing.hateSD_preprocess import preprocess
 from YoutubeToText.download_youtube import save_video_from_link
 from YoutubeToText.extract_comment import save_comment_from_video_link
 from YoutubeToText.extract_transcription import save_transcript_from_video_path
+from ToxicDetection.detection import process_csv
 
 class HateSpeechDetection:
     def __init__(self):
@@ -27,12 +28,21 @@ class HateSpeechDetection:
     
     def preprocess_comment_and_transcript(self, comment_path, transcript_path, 
                                           output_comment_path, output_transcript_path, 
-                                          output_NER_comment_path, output_NER_transcript_path):
+                                          output_NER_comment_path, output_NER_transcript_path,
+                                          output_detection_cleaned_comment_path,
+                                          output_detection_cleaned_transcript_path,
+                                          output_detection_cleaned_NER_comment_path,
+                                          output_detection_cleaned_NER_transcript_path):
         
         
         preprocess(comment_path, transcript_path, 
            output_comment_path, output_transcript_path, 
            output_NER_comment_path, output_NER_transcript_path)
+        
+        process_csv(output_comment_path, output_detection_cleaned_comment_path)
+        process_csv(output_transcript_path, output_detection_cleaned_transcript_path)
+        process_csv(output_NER_comment_path, output_detection_cleaned_NER_comment_path)
+        process_csv(output_NER_transcript_path, output_detection_cleaned_NER_transcript_path)
         
         print("Preprocess Completed")
         
@@ -48,6 +58,10 @@ output_cleaned_transcript_path = "samples/clean_data/cleaned_transcripts.csv"
 output_cleaned_NER_comment_path = "samples/clean_data/cleaned_comments_NER.csv"
 output_cleaned_NER_transcript_path = "samples/clean_data/cleaned_transcripts_NER.csv"
 
+output_detection_cleaned_comment_path = "samples/output/cleaned_comments.csv"
+output_detection_cleaned_transcript_path = "samples/output/cleaned_transcripts.csv"
+output_detection_cleaned_NER_comment_path = "samples/output/cleaned_comments_NER.csv"
+output_detection_cleaned_NER_transcript_path = "samples/output/cleaned_transcripts_NER.csv"
 
 base_path = "E:/HateSpeechDetection_21DAI_SIU/"
 
@@ -55,7 +69,6 @@ hateSpeechDetection = HateSpeechDetection()
 
 
 app = Flask(__name__, template_folder='WebUI/templates', static_folder='WebUI/static')
-path_parent = os.getcwd()
 
 
 @app.route('/')
@@ -111,13 +124,17 @@ def video_processing():
             )
             hateSpeechDetection.preprocess_comment_and_transcript(output_raw_comment_path, output_raw_transcript_path, 
                 output_cleaned_comment_path, output_cleaned_transcript_path, 
-                output_cleaned_NER_comment_path, output_cleaned_NER_transcript_path)
+                output_cleaned_NER_comment_path, output_cleaned_NER_transcript_path,
+                                          output_detection_cleaned_comment_path,
+                                          output_detection_cleaned_transcript_path,
+                                          output_detection_cleaned_NER_comment_path,
+                                          output_detection_cleaned_NER_transcript_path)
             
             return jsonify({
-                    "output_cleaned_comment_path": base_path + output_cleaned_comment_path,
-                    "output_cleaned_transcript_path": base_path + output_cleaned_transcript_path,
-                    "output_cleaned_NER_comment_path": base_path + output_cleaned_NER_comment_path,
-                    "output_cleaned_NER_transcript_path": base_path + output_cleaned_NER_transcript_path
+                    "output_cleaned_comment_path": base_path + output_detection_cleaned_comment_path,
+                    "output_cleaned_transcript_path": base_path + output_detection_cleaned_transcript_path,
+                    "output_cleaned_NER_comment_path": base_path + output_detection_cleaned_NER_comment_path,
+                    "output_cleaned_NER_transcript_path": base_path + output_detection_cleaned_NER_transcript_path
                     })
         return jsonify({"error": "Missing URL"}), 400
 
