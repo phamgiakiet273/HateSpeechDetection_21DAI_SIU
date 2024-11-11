@@ -35,6 +35,7 @@ pip install --upgrade --force-reinstall torch torchvision torchaudio --index-url
 * Put [models file](https://drive.google.com/drive/folders/1VbTjNVxTeUODK4A7Fkh2puvJ9tKbfHvc?usp=sharing) in corresponding folder (read detailed instruction inside ToxicDetection folder)
 ```
 git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU/
+cd HateSpeechDetection_21DAI_SIU
 pip install -r requirements.txt
 pip install --upgrade --force-reinstall "numpy<1.24"
 ```
