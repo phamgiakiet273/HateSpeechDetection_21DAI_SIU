@@ -15,12 +15,26 @@ The Hate Speech Detection project aims to leverage Natural Language Processing (
 * Python 3.9.20
 * ffmpeg
   
-### Installing
+### Installing for Windows
 
-* put [ffmpeg.exe] (https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z) from the bin folder to the same path as pipeline.py
+* Put [ffmpeg.exe] (https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z) from the bin folder to the same path as pipeline.py
 ```
 git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU/
 pip install -r requirements.txt
+pip install --upgrade --force-reinstall "numpy<1.24"
+```
+* If have NVIDIA GPU
+```
+pip install --upgrade --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+```
+
+### Installing Linux
+
+* Install [ffmpege] (https://itsfoss.com/ffmpeg/) for Linux if not available
+```
+git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU/
+pip install -r requirements.txt
+pip install --upgrade --force-reinstall "numpy<1.24"
 ```
 
 ### Executing program
