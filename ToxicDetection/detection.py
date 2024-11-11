@@ -5,8 +5,8 @@ from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 path_parent = os.getcwd()
-path_req = os.path.join(path_parent, 'models')
-tokenizer_path = '/models/Keras_Tokenizer/token.pkl'
+path_req = os.path.join(path_parent, 'ToxicDetection/models')
+tokenizer_path = 'ToxicDetection/models/Keras_Tokenizer/token.pkl'
 
 tokenizer = pickle.load(open(tokenizer_path, 'rb'))
 loaded_model_word2vec = keras.models.load_model(path_req + "/LSTM_word2vec")
@@ -19,7 +19,7 @@ def lstm_word2vec(comment):
     comment_data = pd.DataFrame(data, columns=['Comment'])
     list_tokenized_test = tokenizer.texts_to_sequences(comment_data['Comment'])
     X_te = pad_sequences(list_tokenized_test, maxlen=200)
-    preds_test = loaded_model_word2vec.predict(X_te)
+    preds_test = loaded_model_word2vec.predict(X_te, verbose=0)
     return preds_test
 
 def lstm_glove(comment):
@@ -27,10 +27,10 @@ def lstm_glove(comment):
     comment_data = pd.DataFrame(data, columns=['Comment'])
     list_tokenized_test = tokenizer.texts_to_sequences(comment_data['Comment'])
     X_te = pad_sequences(list_tokenized_test, maxlen=200)
-    preds_test = loaded_model_Glove.predict(X_te)
+    preds_test = loaded_model_Glove.predict(X_te, verbose=0)
     return preds_test
 
-def process_comments(path_csv):
+def process_csv(path_csv, output_path):
     df = pd.read_csv(path_csv)
     
     final_results = []
@@ -64,15 +64,11 @@ def process_comments(path_csv):
 
     df = df.join(results_df)
 
-    input_filename = os.path.basename(path_csv)
-    output_filename = 'result_' + os.path.splitext(input_filename)[0] + '.csv'
-    output_path = os.path.join(path_parent, output_filename)
-
     df.to_csv(output_path, index=False)
 
     print(f"Results saved to {output_path}")
 
-if __name__ == "__main__":
-    path_csv = '/dataset/cleaned_comments.csv'
+# if __name__ == "__main__":
+#     path_csv = '/dataset/cleaned_comments.csv'
 
-    process_comments(path_csv)
+#     process_comments(path_csv)
