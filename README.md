@@ -32,6 +32,7 @@ pip install --upgrade --force-reinstall torch torchvision torchaudio --index-url
 ### Installing Linux
 
 * Install [ffmpege] (https://itsfoss.com/ffmpeg/) for Linux if not available
+* Put [models file] (https://drive.google.com/drive/folders/1VbTjNVxTeUODK4A7Fkh2puvJ9tKbfHvc?usp=sharing) in corresponding folder (read detailed instruction inside ToxicDetection folder)
 ```
 git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU/
 pip install -r requirements.txt
@@ -53,6 +54,7 @@ python pipeline.py
     * Fix preprocessing bug (floating character)
     * Update requirements.txt to use Keras 2
     * Disable printing in Detection model to speed up inference
+    * Create needed folders
 * 1.0
     * Merge and run
 * 0.2
