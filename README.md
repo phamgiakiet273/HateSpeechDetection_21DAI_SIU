@@ -46,6 +46,12 @@ python pipeline.py
 ```
 
 ## Version History
+* 1.1
+    * Use CUDA if available, or else CPU
+    * Add instruction and adaptability for Linux installation
+    * Fix preprocessing bug (floating character)
+    * Update requirements.txt to use Keras 2
+    * Disable printing in Detection model to speed up inference
 * 1.0
     * Merge and run
 * 0.2
