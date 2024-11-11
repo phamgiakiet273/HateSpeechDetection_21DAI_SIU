@@ -18,6 +18,7 @@ The Hate Speech Detection project aims to leverage Natural Language Processing (
 ### Installing for Windows
 
 * Put [ffmpeg.exe] (https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z) from the bin folder to the same path as pipeline.py
+* Put [models file] (https://drive.google.com/drive/folders/1VbTjNVxTeUODK4A7Fkh2puvJ9tKbfHvc?usp=sharing) in corresponding folder (read detailed instruction inside ToxicDetection folder)
 ```
 git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU/
 pip install -r requirements.txt
