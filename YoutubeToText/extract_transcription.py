@@ -32,7 +32,7 @@ class SpeechToText():
         return x
     
     def __init__(self):
-        self.device = 'cuda'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         #load processor and model for speech to text
         self.processor =  Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-english", use_auth_token="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")
         self.model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-english", use_auth_token="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").to(self.device)
@@ -71,8 +71,12 @@ class SpeechToText():
         print(video_name)
         total_wav_path = wav_path + str(video_name).replace(".mp4","") + ".wav"
         if not (os.path.exists(total_wav_path)):
-            command = "ffmpeg.exe -y -i "+ video_path + " -ac 1 -ar 16000 " + total_wav_path
-            subprocess.call(command, shell=True)
+            try:
+                command = "ffmpeg.exe -y -i "+ video_path + " -ac 1 -ar 16000 " + total_wav_path
+                subprocess.call(command, shell=True)
+            except:
+                command = "ffmpeg -y -i "+ video_path + " -ac 1 -ar 16000 " + total_wav_path
+                subprocess.call(command, shell=True)
         video_speech_region = self.audio_pipeline(total_wav_path)
         video_audio = AudioSegment.from_wav(total_wav_path)
         video_transcript = {}
