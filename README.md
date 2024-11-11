@@ -31,7 +31,7 @@ pip install --upgrade --force-reinstall torch torchvision torchaudio --index-url
 
 ### Installing Linux
 
-* Install [ffmpege](https://itsfoss.com/ffmpeg/) for Linux if not available
+* Install [ffmpeg](https://itsfoss.com/ffmpeg/) for Linux if not available
 * Put [models file](https://drive.google.com/drive/folders/1VbTjNVxTeUODK4A7Fkh2puvJ9tKbfHvc?usp=sharing) in corresponding folder (read detailed instruction inside ToxicDetection folder)
 ```
 git clone https://github.com/phamgiakiet273/HateSpeechDetection_21DAI_SIU/
