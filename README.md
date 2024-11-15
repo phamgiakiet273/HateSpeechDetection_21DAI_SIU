@@ -49,6 +49,9 @@ python pipeline.py
 ```
 
 ## Version History
+* 1.2
+    * Update download function to download detection files instead of pre-processed files
+    * Update download_comment function to automatic get time format in English instead of system locale
 * 1.1
     * Use CUDA if available, or else CPU
     * Add instruction and adaptability for Linux installation
