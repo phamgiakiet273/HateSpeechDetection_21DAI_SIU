@@ -87,10 +87,10 @@ def download_file():
     # Create a zip file
     try:
         with zipfile.ZipFile(zip_filepath, 'w') as zipf:
-            zipf.write(output_cleaned_comment_path, arcname=os.path.basename(output_cleaned_comment_path))
-            zipf.write(output_cleaned_transcript_path, arcname=os.path.basename(output_cleaned_transcript_path))
-            zipf.write(output_cleaned_NER_comment_path, arcname=os.path.basename(output_cleaned_NER_comment_path))
-            zipf.write(output_cleaned_NER_transcript_path, arcname=os.path.basename(output_cleaned_NER_transcript_path))
+            zipf.write(output_cleaned_comment_path, arcname=os.path.basename(output_detection_cleaned_comment_path))
+            zipf.write(output_cleaned_transcript_path, arcname=os.path.basename(output_detection_cleaned_transcript_path))
+            zipf.write(output_cleaned_NER_comment_path, arcname=os.path.basename(output_detection_cleaned_NER_comment_path))
+            zipf.write(output_cleaned_NER_transcript_path, arcname=os.path.basename(output_detection_cleaned_NER_transcript_path))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
