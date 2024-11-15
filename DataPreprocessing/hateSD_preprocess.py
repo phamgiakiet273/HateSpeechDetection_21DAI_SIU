@@ -1,19 +1,15 @@
 import re
 import emoji
-import fasttext
-from huggingface_hub import hf_hub_download
 import json
 import csv
 import pandas as pd
-import torch
+from langdetect import detect
+
 from emoji import demojize
 from nltk.tokenize import TweetTokenizer
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-# Download and load the fastText model for language identification
-model_path = hf_hub_download(repo_id="facebook/fasttext-language-identification", filename="model.bin")
-model2 = fasttext.load_model(model_path)
 
 tokenizer = TweetTokenizer()
 
@@ -71,7 +67,7 @@ if __name__ == "__main__":
 tokenizer = AutoTokenizer.from_pretrained("TweebankNLP/bertweet-tb2_wnut17-ner")
 model = AutoModelForTokenClassification.from_pretrained("TweebankNLP/bertweet-tb2_wnut17-ner")
 #ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, grouped_entities=True)
-ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple", device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
+ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
 
 def remove_entities(comment):
     # Get named entities in the comment
@@ -101,12 +97,10 @@ def remove_entities(comment):
 def preprocess(comment_path, transcript_path, output_comment_path, output_transcript_path, output_NER_comment, output_NER_transcript):
 
     def is_english(text):
-        """ Function to filter non-English text """
-        prediction = model2.predict(text, k=2)  # Get the top 2 languages present
-        for label in prediction[0]:
-            if label == "__label__eng_Latn":
-                return True
-        return False
+        """Function to filter non-English text using langdetect."""
+        detected_lang = detect(text)
+        return detected_lang == 'en'
+
 
     def translate_time_to_english(time_str):
         time_translation_map = {
