@@ -9,7 +9,7 @@ def save_comment_from_video_link(video_link, output_raw_comment_path, k=50):
     downloader = YoutubeCommentDownloader()
 
 
-    comments = downloader.get_comments_from_url(video_link, sort_by=SORT_BY_POPULAR)
+    comments = downloader.get_comments_from_url(video_link, sort_by=SORT_BY_POPULAR, language='en')
 
     save_json = []
 
