@@ -2,6 +2,7 @@ import re
 import emoji
 import json
 import csv
+import torch
 import pandas as pd
 from langdetect import detect
 
@@ -64,10 +65,11 @@ if __name__ == "__main__":
         )
     )
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 tokenizer = AutoTokenizer.from_pretrained("TweebankNLP/bertweet-tb2_wnut17-ner")
 model = AutoModelForTokenClassification.from_pretrained("TweebankNLP/bertweet-tb2_wnut17-ner")
 #ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, grouped_entities=True)
-ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple", device=0 if torch.cuda.is_available() else -1)
 
 def remove_entities(comment):
     # Get named entities in the comment
