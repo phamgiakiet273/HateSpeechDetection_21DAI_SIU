@@ -164,9 +164,9 @@ def preprocess(comment_path, transcript_path, output_comment_path, output_transc
         # Translate time to English
         time = translate_time_to_english(time)
 
-        # Check if the comment contains at least 2 letters and is English
-        letters = [char for char in comment if char.isalpha()]
-        if len(letters) >= 2 and is_english(comment):
+        # Check if the comment contains at least 2 words and is in English
+        word_count = len(comment.split())
+        if word_count >= 2 and is_english(comment):
             cleaned_comments.append((comment, time))
 
     # Save cleaned comments to CSV with 3 columns: 'index', 'content', 'time'
