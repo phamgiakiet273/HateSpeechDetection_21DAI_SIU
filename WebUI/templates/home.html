@@ -1,43 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Toxic Comment Detection</title>
     <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #121212;
+            /* Dark background for a bold look */
+            color: #f1f1f1;
+            /* Light text for contrast */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            /* Dark gray for strength */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+        }
+
+        h1,
+        h2 {
+            color: #009688;
+            /* Teal for a pop of color */
+            text-transform: uppercase;
+            /* Adds a commanding tone */
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .video-section,
+        .transcription-results,
+        .comment-results,
+        .test-section,
+        .test-results {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 2px solid #2a2a2a;
+            /* Bold border for definition */
+            border-radius: 8px;
+            background-color: #1a1a1a;
+            /* Slightly lighter gray for contrast */
+        }
+
+        input[type="text"],
+        select,
+        input[type="number"],
+        input[type="file"] {
+            padding: 12px;
+            margin-right: 10px;
+            border: 2px solid #333;
+            /* Stronger border */
+            border-radius: 4px;
+            background-color: #222;
+            /* Dark input background */
+            color: #f1f1f1;
+        }
+
+        button {
+            padding: 12px 18px;
+            background-color: #00796b;
+            /* Deep teal for buttons */
+            color: #f1f1f1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #004d40;
+            /* Darker teal on hover */
+        }
+
+        .transcription-results .left,
+        .comment-results .left,
+        .transcription-results .right,
+        .comment-results .right {
+            flex: 1;
+            margin: 0 10px;
+            padding: 15px;
+            background-color: #252525;
+            /* Subtle difference for depth */
+            border: 2px solid #2a2a2a;
+            border-radius: 4px;
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+            color: #f1f1f1;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #333;
+        }
+
+        th {
+            background-color: #212121;
+            /* Dark header for dominance */
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+
+        tr:hover {
+            background-color: #333;
+        }
+
         /* Spinner styles */
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #00796b;
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            border-left-color: #09f;
             animation: spin 1s linear infinite;
-            display: none; /* Initially hidden */
+            display: none;
             margin: 10px auto;
         }
 
+        .controls select,
+        .controls input,
+        .controls button {
+            margin-right: 10px;
+            background-color: #222;
+            border: 2px solid #333;
+            color: #f1f1f1;
+        }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        /* Responsive Table Styles */
+        @media (max-width: 600px) {
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            th {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                margin-bottom: 10px;
+            }
+
+            td {
+                border: none;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            td:before {
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 10px;
+                white-space: nowrap;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Toxic Comment Detection</h1>
 
         <!-- Section 1: Load Video -->
-            <form id='processForm' method='POST'>
-                <div class="video-section">
-                    <input type="text" id="youtube_url" name="youtube_url" placeholder="Enter Youtube URL..." />
-                    <button id="load-button" onclick="loadVideo(event)">Load Video</button>
-                    <button id="process-button" type='button' onclick="processVideo()">Process</button>
-                    <div id="video-container" class="video-container"></div>
-                </div>
-            </form>
+        <form id='processForm' method='POST'>
+            <div class="video-section">
+                <input type="text" id="youtube_url" name="youtube_url" placeholder="Enter Youtube URL..." />
+                <button id="load-button" onclick="loadVideo(event)">Load Video</button>
+                <button id="process-button" type='button' onclick="processVideo()">Process</button>
+                <div id="video-container" class="video-container"></div>
+            </div>
+        </form>
 
         <!-- Loading Spinner -->
         <div id="loading" class="spinner"></div>
+
+        <!-- Filtering and Sorting -->
+        <div class="controls">
+            <label for="filter-table">Table:</label>
+            <select id="filter-table">
+                <option value="all">All Tables</option>
+                <option value="comment-results">Comments Results</option>
+                <option value="ner-comment-results">NER Comments Results</option>
+                <option value="transcription">Transcription Results</option>
+                <option value="ner-results">NER Transcription Results</option>
+            </select>
+
+            <label for="filter-column">Column:</label>
+            <select id="filter-column">
+                <option value="toxic">Toxic</option>
+                <option value="severe_toxic">Severe Toxic</option>
+                <option value="obscene">Obscene</option>
+                <option value="threat">Threat</option>
+                <option value="insult">Insult</option>
+                <option value="identity_hate">Identity Hate</option>
+                <option value="neutral">Neutral</option>
+            </select>
+
+            <label for="filter-type">Filter:</label>
+            <select id="filter-type">
+                <option value="greater">Greater Than</option>
+                <option value="lesser">Less Than</option>
+            </select>
+
+            <input type="number" id="filter-value" placeholder="Enter value">
+
+            <label for="sort-order">Sort:</label>
+            <select id="sort-order">
+                <option value="ascending">Ascending</option>
+                <option value="descending">Descending</option>
+            </select>
+
+            <button onclick="applyFilterAndSort()">Apply</button>
+        </div>
+
+        <!-- Container for active filters -->
+        <div id="active-filters">
+            <h3>Active Filters:</h3>
+            <ul id="filter-list"></ul>
+        </div>
+
 
         <!-- Section 2: Transcription Results -->
         <div class="transcription-results">
@@ -71,7 +290,7 @@
                     <button type="submit">Download Results</button>
                 </div>
             </form>
-            
+
         </div>
     </div>
 
@@ -87,7 +306,7 @@
                 alert("Please enter validate URL.");
             }
         }
-        
+
         function getYouTubeID(url) {
             const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&\n]{11})/;
             const matches = url.match(regex);
@@ -101,31 +320,31 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                loadCSVData(data.output_cleaned_comment_path, 'comment-results');
-                loadCSVData(data.output_cleaned_transcript_path, 'transcription');
-                loadCSVData(data.output_cleaned_NER_comment_path, 'ner-comment-results');
-                loadCSVData(data.output_cleaned_NER_transcript_path, 'ner-results');
-            })
-            .catch(error => console.error('Error:', error))
-            .finally(() => {
-                document.getElementById('loading').style.display = 'none'; // Hide the spinner
-            });
+                .then(response => response.json())
+                .then(data => {
+                    loadCSVData(data.output_cleaned_comment_path, 'comment-results');
+                    loadCSVData(data.output_cleaned_transcript_path, 'transcription');
+                    loadCSVData(data.output_cleaned_NER_comment_path, 'ner-comment-results');
+                    loadCSVData(data.output_cleaned_NER_transcript_path, 'ner-results');
+                })
+                .catch(error => console.error('Error:', error))
+                .finally(() => {
+                    document.getElementById('loading').style.display = 'none'; // Hide the spinner
+                });
         }
 
         function predictData() {
             const formData = new FormData(document.getElementById('predictForm'));
-            
+
             fetch('/predict', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('message').innerHTML = data;
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('message').innerHTML = data;
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function loadCSVData(csvFilename, elementId) {
@@ -133,11 +352,11 @@
                 console.error(`Filename for ${elementId} is undefined.`);
                 return;
             }
-            
+
             // Construct the full URL for the CSV endpoint
             const csvUrl = `${window.location.origin}/csv/${csvFilename}`;
-            console.log(`Fetching CSV from: ${csvUrl}`);  // Log for debugging
-            
+            console.log(`Fetching CSV from: ${csvUrl}`); // Log for debugging
+
             fetch(csvUrl)
                 .then(response => {
                     if (!response.ok) {
@@ -147,23 +366,182 @@
                 })
                 .then(text => {
                     const rows = text.split('\n').map(row => row.split(','));
+
+                    // Create table
                     const table = document.createElement('table');
-                    rows.forEach(row => {
+                    rows.forEach((row, rowIndex) => {
                         const tr = document.createElement('tr');
-                        row.forEach(cell => {
-                            const td = document.createElement('td');
+                        row.forEach((cell, colIndex) => {
+                            const td = document.createElement(rowIndex === 0 ? 'th' : 'td'); // Header for first row
+                            if (rowIndex > 0 && colIndex > 0) {
+                                // Apply formatting to numeric fields
+                                if (!isNaN(cell) && cell.trim() !== '') {
+                                    cell = parseFloat(cell).toFixed(2);
+                                }
+
+                                // Truncate "content" field
+                                if (colIndex === 1 && cell.length > 50) {
+                                    const fullText = cell;
+                                    const truncatedText = `${cell.slice(0, 50)}...`;
+                                    let isTruncated = true; // Track the state of the text
+
+                                    const span = document.createElement('span');
+                                    span.textContent = truncatedText;
+                                    span.style.cursor = 'pointer';
+                                    span.style.color = 'white';
+                                    span.title = 'Click to toggle full/truncated text';
+
+                                    span.addEventListener('click', () => {
+                                        if (isTruncated) {
+                                            span.textContent = fullText;
+                                        } else {
+                                            span.textContent = truncatedText;
+                                        }
+                                        isTruncated = !isTruncated;
+                                    });
+
+                                    td.appendChild(span);
+                                    tr.appendChild(td);
+                                    return; // Skip further processing for this cell
+                                }
+                            }
                             td.textContent = cell;
                             tr.appendChild(td);
                         });
                         table.appendChild(tr);
                     });
-                    document.getElementById(elementId).innerHTML = '';  // Clear previous content
-                    document.getElementById(elementId).appendChild(table);
+
+                    // Display the table in the specified element
+                    const container = document.getElementById(elementId);
+                    container.innerHTML = ''; // Clear previous content
+                    container.appendChild(table);
                 })
                 .catch(error => console.error('Error loading CSV:', error));
         }
+
+
+        let activeFilters = []; // Array to store all active filters
+
+        function applyFilterAndSort() {
+            const column = document.getElementById('filter-column').value;
+            const filterType = document.getElementById('filter-type').value;
+            const filterValue = parseFloat(document.getElementById('filter-value').value);
+            const sortOrder = document.getElementById('sort-order').value;
+            const tableSelection = document.getElementById('filter-table').value;
+
+            // Save the current filter
+            const newFilter = { column, filterType, filterValue, sortOrder, tableSelection };
+            activeFilters.push(newFilter);
+
+            // Reapply all filters
+            reapplyFilters();
+
+            // Add filter to the list in the UI
+            addFilterToList(newFilter);
+        }
+
+        function reapplyFilters() {
+            // First, reset all rows to visible
+            const allTables = document.querySelectorAll('table');
+            allTables.forEach(table => {
+                const rows = table.querySelectorAll('tr:not(:first-child)');
+                rows.forEach(row => (row.style.display = ''));
+            });
+
+            // Apply each filter in the activeFilters array
+            activeFilters.forEach(filter => {
+                const { column, filterType, filterValue, sortOrder, tableSelection } = filter;
+
+                const tables = tableSelection === 'all'
+                    ? document.querySelectorAll('table')
+                    : [document.getElementById(tableSelection)];
+
+                tables.forEach(table => {
+                    if (!table) return;
+
+                    const rows = Array.from(table.querySelectorAll('tr:not(:first-child)'));
+                    const colIndex = getColumnIndex(table, column);
+
+                    if (colIndex === -1) return;
+
+                    rows.forEach(row => {
+                        const cell = row.querySelector(`td:nth-child(${colIndex})`);
+                        const cellValue = cell ? parseFloat(cell.textContent) : NaN;
+
+                        let shouldDisplay = true;
+                        if (filterType === 'greater' && cellValue <= filterValue) {
+                            shouldDisplay = false;
+                        } else if (filterType === 'lesser' && cellValue >= filterValue) {
+                            shouldDisplay = false;
+                        }
+
+                        if (!shouldDisplay) {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // Sort visible rows
+                    const sortedRows = rows
+                        .filter(row => row.style.display !== 'none')
+                        .sort((a, b) => {
+                            const aCell = a.querySelector(`td:nth-child(${colIndex})`);
+                            const bCell = b.querySelector(`td:nth-child(${colIndex})`);
+                            const aValue = aCell ? parseFloat(aCell.textContent) || 0 : 0;
+                            const bValue = bCell ? parseFloat(bCell.textContent) || 0 : 0;
+
+                            return sortOrder === 'ascending' ? aValue - bValue : bValue - aValue;
+                        });
+
+                    sortedRows.forEach(row => table.appendChild(row));
+                });
+            });
+        }
+
+        function addFilterToList(filter) {
+            const { column, filterType, filterValue, sortOrder } = filter;
+            const filterList = document.getElementById('filter-list');
+
+            // Create a list item for the filter
+            const listItem = document.createElement('li');
+            listItem.textContent = `${column} ${filterType} ${filterValue} (${sortOrder})`;
+
+            // Add a remove button
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.style.marginLeft = '10px';
+            removeButton.onclick = () => {
+                // Remove filter from activeFilters array
+                activeFilters = activeFilters.filter(f => f !== filter);
+
+                // Reapply filters
+                reapplyFilters();
+
+                // Remove the list item from the UI
+                filterList.removeChild(listItem);
+            };
+
+            listItem.appendChild(removeButton);
+            filterList.appendChild(listItem);
+        }
+
+        // Helper function to get column index
+        function getColumnIndex(table, columnName) {
+            const headers = table.querySelectorAll('th');
+            for (let i = 0; i < headers.length; i++) {
+                if (headers[i].textContent.trim().toLowerCase() === columnName.toLowerCase()) {
+                    return i + 1; // nth-child is 1-based
+                }
+            }
+            return -1; // Not found
+        }
+
+
+
+
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
+
 </html>
